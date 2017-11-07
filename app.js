@@ -4,14 +4,27 @@
 var express  = require('express');
 var app      = express();                        // create our app w/ express
 var mongoose = require('mongoose');              // mongoose for mongodb
+var path = require('path');
 var morgan   = require('morgan');                // log requests to the console (express4)
 var bodyParser = require('body-parser');         // pull information from HTML POST (express4)
+var favicon = require('serve-favicon');
 // var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var cookieParser = require('cookie-parser');
 var database = require('./config/database');
 var port     = process.env.PORT || 8888;         // set the port
-
-
+var routes = require('./app/routes.js');
+var utils = require('./utils');
+var current_user = function ( req, res, next ){
+  var user_id = req.cookies ?
+      req.cookies.user_id : undefined;
+ 
+  if( !user_id ){
+    res.cookie( 'user_id', utils.uid( 32 ));
+    console.log("successful!");
+  }
+ 
+  next();
+}; 
 // configuration ===============================================================
 mongoose.connect(database.url, 
 {
@@ -20,15 +33,17 @@ mongoose.connect(database.url,
 );     // connect to mongoDB database on modulus.io
 
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(morgan('dev'));                                         // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(cookieParser());
+app.use(current_user);
 // app.use(methodOverride());
 
 // routes ======================================================================
-require('./app/routes.js')(app);
+routes(app);
 
 // listen (start app with node server.js) ======================================
 app.listen(port);

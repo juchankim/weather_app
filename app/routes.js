@@ -2,8 +2,9 @@
 
 // load the history model
 var Hist = require('./models/history');
-// var User = require('./models/user');
+
 var cookieParser = require("cookie-parser"); 
+var utils    = require( '../utils' );
 
 // expose the routes to our app with module.exports
 var callback = 
@@ -11,7 +12,6 @@ module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
     app.get('/api/hist', function(req, res) {
-        console.log(req);
         var user_id = req.cookies ? req.cookies.user_id : undefined;
         // use mongoose to get all users
         Hist.
@@ -31,11 +31,10 @@ module.exports = function(app) {
 
     // create todo and send back all todos after creation
     app.post('/api/hist', function(req, res) {
-        var user_id = req.cookies ? req.cookies.user_id : undefined;
-        // create a history, information comes from AJAX request from Angular
+        console.log(req.cookies);
         Hist.create({
             text : req.body.text,
-            user_id : user_id,
+            user_id : req.cookies.user_id,
             date : Date.now()
         }, function(err, hists) {
             if (err)
@@ -43,7 +42,7 @@ module.exports = function(app) {
 
             // get and return all the todos after you create another
             Hist.
-                find({user_id : user_id}).
+                find({user_id : req.cookies.user_id}).
                 limit(5).
                 sort('-date').
                 exec(function(err, hists) {
@@ -60,7 +59,6 @@ module.exports = function(app) {
 
     app.put('/api/hist/:history_id', function(req,res) {
         var user_id = req.cookies ? req.cookies.user_id : undefined;
-
         Hist.findOneAndUpdate({_id: req.params.history_id}, { 
             $set: { date: Date.now() } 
         }, {new: true}, function(err, hists) {
@@ -111,6 +109,7 @@ module.exports = function(app) {
 
     app.delete('/api/hist/', function(req, res) {
         var user_id = req.cookies ? req.cookies.user_id : undefined;
+
         Hist.remove({
             user_id : user_id
         }, function(err, hists) {
