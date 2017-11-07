@@ -11,7 +11,7 @@ module.exports = function(app) {
 
     // api ---------------------------------------------------------------------
     app.get('/api/hist', function(req, res) {
-        // console.log(req.cookies);
+        console.log(req);
         var user_id = req.cookies ? req.cookies.user_id : undefined;
         // use mongoose to get all users
         Hist.
