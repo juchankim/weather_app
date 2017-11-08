@@ -105,8 +105,8 @@ function darkSkyProvider() {
      * ... {boolean} options.extend - pass true for extended forecast 
      * @returns {promise} - resolves with daily weather data object
      */
-    function getForecast(latitude, longitude, options) {
-      return api(latitude, longitude, options).myForecast();
+    function getForecast(latitude, longitude, unit, options) {
+      return api(latitude, longitude, options).myForecast(unit);
     }
 
 
@@ -179,19 +179,12 @@ function darkSkyProvider() {
      * Get units object showing units returned based on configured language/units
      * @returns {object} units
      */
-    function getUnits() {
-      var unitsObject,
-        // per API defualt assume 'us' if omitted 
-        unitId = 'us';
+    function getUnits(unitId) {
+      var unitsObject;
 
       // determine unit id
-      if (units) {
-        if (units === 'auto') {
-          console.warn('Can\'t guess units. Defaulting to Imperial');
-          unitId = 'us';
-        } else {
-          unitId = units;
-        }
+      if (!unitId) {
+        unitId = units;
       }
 
       // get units object by id
@@ -229,9 +222,9 @@ function darkSkyProvider() {
         time = options.time;
       }
       return {
-        myForecast: function() {
+        myForecast: function(unit) {
           var query = config.baseExclude + ['alerts', 'flags', 'minutely'].join(",") + optionsString(options);
-          return fetch(latitude, longitude, query, time);
+          return fetchU(latitude, longitude, query, time, unit);
         } ,
         current: function () {
           var query = excludeString('currently') + optionsString(options);
@@ -308,6 +301,35 @@ function darkSkyProvider() {
       }
       return out;
     }
+    /**
+     * Perform http jsonp request for weather data
+     * @param {number} latitude - position latitude
+     * @param {number} longitude - position longitude
+     * @param {string} query - additional request params query string
+     * @param {number} time - timestamp for timemachine requests
+     * @returns {promise} - resolves to weather data object
+     */
+    function fetchU(latitude, longitude, query, time, unit) {
+      if (!latitude || !longitude) {
+        console.warn("no latitude or longitude sent to weather api");
+      }
+      var time = time ? ', ' + time : '',
+        url = [config.baseUri, apiKey, '/', latitude, ',', longitude, time, '?units=', unit, '&lang=', language, query].join('');
+      return $http
+        .jsonp($sce.trustAsResourceUrl(url))
+        .then(function (results) {
+          // check response code
+          if (parseInt(results.status) === 200) {
+            return results.data;
+          } else {
+            return $q.reject(results);
+          }
+        })
+        .catch(function (data, status, headers, config) {
+          return $q.reject(status);
+        });
+    }
+
 
     /**
      * Perform http jsonp request for weather data

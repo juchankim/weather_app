@@ -1,14 +1,14 @@
 // js/controllers/main.js
     
-angular.module('histController', ['dark-sky'])
+angular.module('histController', [])
     .controller('mainController', mainController);
-mainController.$inject = ['$scope','Hists', 'darkSky', 'moment'];
+mainController.$inject = ['$scope','Hists', 'Weather'];
 
-function mainController ($scope, Hists, darkSky, moment) {
+function mainController ($scope, Hists, Weather) {
     $scope.formData = {};
-    $scope.loc = "";
+    $scope.loc = "London, UK";
+
     var latlong = {};
-    var timezone = "";
     // GET
     // when landing on the page, get 5 recent hists and show them
     Hists.get()
@@ -23,7 +23,7 @@ function mainController ($scope, Hists, darkSky, moment) {
             if (stat === 'OK') {
                 latlong = res[0].geometry.location;
                 map.setCenter(latlong);
-                getForecast(latlong.lat(), latlong.lng());
+                Weather.getForecast(latlong.lat(), latlong.lng(), $scope.u);
                 $scope.loc = res[0].formatted_address;
     
             } else {
@@ -32,108 +32,6 @@ function mainController ($scope, Hists, darkSky, moment) {
         })
     }
 
-    var getForecast = function(lat,long) {
-        darkSky.getForecast(lat, long)
-            .then(function(res) {
-                timezone = res.timezone;
-                showCurrentForecast(res.currently);
-                showDailyForecast(res.hourly.data);
-                showWeeklyForecast(res.daily.data);
-            })
-    }
-    var showCurrentForecast = function(currdata) {
-        var items = [];
-        $('#currently-weather').empty();
-        items.push(
-            '<tbody>' +
-              '<tr>' +
-
-                  '<td><h5>' + Math.round(currdata.temperature) + '&deg ' + currdata.summary + '.</h5></td>' +
-              '</tr>' +
-            '</tbody>');
-        var tableString = items.join('');
-        $('#currently-weather').append(tableString);
-    };
-
-    var showDailyForecast = function(daydata) {
-        var items = [];
-
-
-        $('#hourly-weather').empty();
-        items.push('<tbody>' + '<tr>');
-        $.each(daydata, function(index, data) {
-            var unixDestOff = moment.utc().clone().tz(timezone).utcOffset();
-            var unixLocalOff = moment().utcOffset();
-
-            var unixDest = data.time * 1000 + (-1*unixLocalOff + unixDestOff) * 60000;
-            var date = new Date(unixDest);
-
-            var hours = date.getHours();
-            var ampm = (hours >= 12) ? "PM" : "AM";
-            if (index == 0) {
-                hours = "NOW";
-                
-            } else {
-                if (hours >= 12) {
-                   hours = hours - 12;
-                 }
-                 if (hours == 0) {
-                   hours = 12;
-                 }
-                hours = hours + ampm;
-
-            }
-            items.push(
-              '<td><h5>' +
-                hours + "</h5><i class='wi wi-forecast-io-" + 
-                data.icon + " wi-dark-sky-" + data.icon + "'></i><br><h5>" + 
-                Math.round(data.temperature) + 
-              '&deg</h5></td>');
-        });
-        items.push('</tr></tbody>')
-        var tableString = items.join('');
-        $('#hourly-weather').append(tableString);
-
-    };
-    var showWeeklyForecast = function(weekdata) {
-        var items = [];
-        var weekday = new Array(7);
-        weekday[0] =  "Sunday";
-        weekday[1] = "Monday";
-        weekday[2] = "Tuesday";
-        weekday[3] = "Wednesday";
-        weekday[4] = "Thursday";
-        weekday[5] = "Friday";
-        weekday[6] = "Saturday";
-        $('#daily-weather').empty();
-        items.push('<tbody>');
-        $.each(weekdata, function(index, data) {
-            var unixDestOff = moment.utc().clone().tz(timezone).utcOffset();
-            var unixLocalOff = moment().utcOffset();
-
-            var unixDest = data.time * 1000 + (-1*unixLocalOff + unixDestOff) * 60000;
-            var date = new Date(unixDest);
-            var n = weekday[date.getDay()];
-            var today = ""; 
-            if (index == 0) {
-                n = "TODAY";
-            }
-            items.push(
-              '<tr>' + 
-              '<td><h5>' + n + '</h5></td>' +
-                "<td><i class='wi wi-forecast-io-" + data.icon + " wi-dark-sky-" + data.icon + "'></i></td>" + 
-                "<td><h5>" +   Math.round(data.temperatureHigh) + "&deg</h5></td>" + 
-                "<td><h5>" +   Math.round(data.temperatureLow) + "&deg</h5></td>" + 
-              '</tr>');
-        });
-        items.push('</tbody>')
-        var tableString = items.join('');
-        $('#daily-weather').append(tableString);
-
-
-    };
-
-
     $scope.initialize = function() {
         var pos = {lat: 51.51, lng: -0.13};
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -141,7 +39,7 @@ function mainController ($scope, Hists, darkSky, moment) {
             zoom : 13
         });
         var geocoder = new google.maps.Geocoder();
-        disp(geocoder, map, "London, UK");
+        disp(geocoder, map, $scope.loc);
         // when new search
         document.getElementById('createHist').addEventListener('click', function() {
             disp(geocoder, map, document.getElementById('new_address').value);
@@ -155,10 +53,20 @@ function mainController ($scope, Hists, darkSky, moment) {
     };
 
 
-
     google.maps.event.addDomListener(window, 'load', $scope.initialize);
 
+    $scope.updateUnit = function() {
+        $scope.u = "";
 
+        switch($scope.unit) {
+            case 'us': $scope.u = 'us'; break;
+            case 'si': $scope.u = 'si'; break;
+            case 'ca': $scope.u = 'ca'; break;
+            case 'uk2': $scope.u = 'uk2'; break;
+        }
+        $scope.newDisp($scope.loc);
+
+    };
 
     
 
