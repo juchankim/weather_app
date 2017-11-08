@@ -8,16 +8,18 @@ angular.module('weatherService', ['dark-sky'])
             items.push(
                 '<tbody>' +
                   '<tr>' +
-
-                      '<td><h5>' + Math.round(currdata.temperature) + '&deg ' + currdata.summary + '.</h5></td>' +
+                     "<td style = 'padding:0;margin:0'><h2><i class='wi wi-forecast-io-" + currdata.icon + " wi-dark-sky-" + currdata.icon + "'></i> </h2><b>" +
+                      Math.round(currdata.temperature) + '&deg ' + currdata.summary + '.<b></td>' +
                   '</tr>' +
                 '</tbody>');
             var tableString = items.join('');
             $('#currently-weather').append(tableString);
         };
 
-        var showCurrentForecastDetailed = function(units, currdata) {
-            var interesting = ['humidity', 'dewPoint', 'wind', 'visibility', 'uvIndex'];
+        var showCurrentForecastDetailed = function(units, json) {
+            currdata = json.currently;
+
+            var interesting = ['summary','humidity', 'dewPoint', 'wind', 'visibility', 'pressure','uvIndex'];
             var items = [];
             $('#currently-weather-detailed').empty();
             items.push('<tbody>');
@@ -37,6 +39,13 @@ angular.module('weatherService', ['dark-sky'])
                         currdata["windSpeed"] + " " +  units["windSpeed"] + '</h5></td>' + 
                         '</tr>');
 
+                } else if (data == "summary") {
+                    items.push(
+                        '<tr><td colspan = "2"><h6>' + 
+                        json.hourly.summary + 
+                        '</h6></td></tr>');
+
+
                 } else {
                     unit = " ";
                     retData = currdata[data];
@@ -50,7 +59,10 @@ angular.module('weatherService', ['dark-sky'])
                     }
                     if (data == "humidity") {
                         unit = "%";
-                        retData = retData * 100;
+                        retData = Math.round(retData * 100);
+                    }
+                    if (data == "uvIndex") {
+
                     }
                     items.push(
                         '<tr>' + 
@@ -79,7 +91,7 @@ angular.module('weatherService', ['dark-sky'])
                 var date = new Date(unixDest);
 
                 var hours = date.getHours();
-                var ampm = (hours >= 12) ? "PM" : "AM";
+                var ampm = (hours >= 12) ? "pm" : "am";
                 if (index == 0) {
                     hours = "NOW";
                     
@@ -129,12 +141,12 @@ angular.module('weatherService', ['dark-sky'])
                     n = "TODAY";
                 }
                 items.push(
-                  '<tr>' + 
-                  '<td><h5>' + n + '</h5></td>' +
+                  '<tr><h5>' + 
+                  '<td><b>' + n + '<b></td>' +
                     "<td><i class='wi wi-forecast-io-" + data.icon + " wi-dark-sky-" + data.icon + "'></i></td>" + 
-                    "<td><h5>" +   Math.round(data.temperatureLow) + "&deg</h5></td>" + 
-                    "<td><h5><b>" +   Math.round(data.temperatureHigh) + "&deg</b></h5></td>" + 
-                  '</tr>');
+                    "<td>" +   Math.round(data.temperatureLow) + "&deg</td>" + 
+                    "<td><b>" +   Math.round(data.temperatureHigh) + "&deg</b></td>" + 
+                  '</h5></tr>');
             });
             items.push('</tbody>')
             var tableString = items.join('');
@@ -149,7 +161,7 @@ angular.module('weatherService', ['dark-sky'])
                 darkSky.getForecast(lat, long, unit)
                     .then(function(res) {
                         showCurrentForecast(res.currently);
-                        showCurrentForecastDetailed(darkSky.getUnits(unit), res.currently);
+                        showCurrentForecastDetailed(darkSky.getUnits(unit), res);
                         showDailyForecast(res.timezone, res.hourly.data);
                         showWeeklyForecast(res.timezone, res.daily.data);
                     });
