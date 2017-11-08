@@ -5,10 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-    <title>Node/Angular Weather App</title>
+    <title>Weather Forecast</title>
 
     <!-- SCROLLS -->
+    <link rel="shortcut icon" type="image/x-icon" href="fav_icon.ico" />
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+    <link rel="stylesheet" href="css/weather-icons.min.css">
     <style>
         html                    { overflow-y:scroll; }
         body                    { padding-top:50px; }
@@ -17,11 +19,22 @@
     <!-- SPELLS -->
 
     <script src= "https://maps.googleapis.com/maps/api/js?key=AIzaSyDbdnHZnNMZawEhOMHMWdPNvKU1TFiJE10" type="text/javascript"> </script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script><!-- load jquery -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script><!-- load angular -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.js"></script>
+    <!-- load momentJS (required for angular-moment) -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js"></script>
+
+    <!-- load angular-moment -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-moment/0.9.0/angular-moment.min.js"></script>
+    
     <script src="js/controllers/main.js"></script> <!-- load up our controller -->
+    <script src="js/providers/angular-dark-sky.js"></script>
     <script src="js/services/hists.js"></script> <!-- load our hist service -->
+    <!-- // <script src="https://d3js.org/d3.v4.min.js"></script> -->
     <script src="js/core.js"></script> <!-- load our main application -->
+
 
 </head>
 <!-- SET THE CONTROLLER AND GET ALL TODOS -->
@@ -30,34 +43,35 @@
 <body ng-controller="mainController">
     <div class="container">
         <div class="header">
-            <h3 class="text-muted">Weather Forecast App </h3>
+              <div class="container-fluid">
+                <h3 class="text-muted">Weather Forecast</h3>
+              </div>
+            
+
         </div>
         <!-- Map and Side Panel -->
         <div class="row content">
-            <!-- Google Map -->
-            <div class = "col-md-4">
-                <div id="map" style="width:100%; height:327px"></div>
-            </div>
-            
-            <!-- Weather INFO -->
-            <div class="col-md-4">
-
-                <!-- <div id="map" style ="width:645px; height:645px">div> -->
-            </div>
             <!-- Side Panel -->
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <!-- Panel Title -->
-                    <div class="panel-heading">
-                        <h2 class="panel-title text-center"> Find weather forecast for an address </h2>
-                    </div>
+     <!--                <div class="panel-heading">
+                        <h2 class="panel-title text-center"> Search  </h2>
+                    </div> -->
                     <!-- Panel Body -->
                     <div class="panel-body">
                         <!-- Creates Form (novalidate disables HTML validation, Angular will control) -->
                         <form name ="addForm" novalidate>
                             <!-- Text Boxes and Other User Inputs. Note ng-model binds the values to Angular $scope -->
                             <div class="form-group">
-                                <label for="new_address">Address</label>
+                                <label for="new_address">Address</label>  
+                                <!-- TO CHANGE THE UNITS -->
+<!--                                 <select class="units pull-right">
+                                  <option value="us">˚F, mph</option>
+                                  <option value="si">˚C, m/s</option>
+                                  <option value="ca">˚C, km/h</option>
+                                  <option value="uk2">˚C, mph</option>
+                                </select> -->
                                 <input type="text" class="form-control" id="new_address" ng-model="formData.text" required>
                             </div>
                             <!-- Submit button. Note that its tied to createUser() function from addCtrl. Also note ng-disabled logic which prevents early submits.  -->
@@ -65,7 +79,7 @@
                         </form>
                         <hr>
                         <!-- SEARCH HISTORY LIST -->
-                        <div id="hist-list" class="row">
+                        <div id="hist-list" class="container-fluid row">
                             
                             <div class="col-md-12" ng-repeat="hist in hists">
                                 <!-- TODO: when clicked, update the hist to new date -->
@@ -75,7 +89,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class = "col-md-4">
+                        <div class = "container-fluid">
                             <button type="button" class="btn btn-info" ng-click = "deleteEntireHistory()">Remove ALL Search History </button>
                         </div>
 
@@ -83,6 +97,37 @@
                     </div>
                 </div>
             </div>
+            <!-- Weather INFO -->
+            <div class="col-md-4 text-center container-fluid" >
+                <div class="panel panel-default">
+                    <!-- Panel Title -->
+                    <div class="panel-heading">
+                        <h2 class="panel-title text-center"> {{loc}} </h2>
+                    </div>
+                    <!-- Panel Body -->
+                    <div class="panel-body">
+                        <!-- Creates Form (novalidate disables HTML validation, Angular will control) -->
+                        <div class = "table-borderless span12">
+                            <table id = "currently-weather" class = "table"> </table>
+                        </div>
+                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; width: 100%">
+                            <table id = "hourly-weather" class = "table"> </table>
+                        </div>
+                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; height:327px">
+                            <table id = "daily-weather" class = "table"> </table>
+                        </div>                 
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Google Map -->
+            <div class = "col-md-4">
+                <div id="map" style="width:100%; height:327px"></div>
+            </div>
+            
+
+
         </div>
         <hr/>
         <!-- Footer -->
