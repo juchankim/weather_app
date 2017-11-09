@@ -87,7 +87,7 @@ angular.module('weathercast')
 	 				 // Add the x Axis
 	 				 svg.append("g")
 	 				     .attr("transform", "translate(0," + height + ")")
-	 				     .call(d3.axisBottom(x));
+	 				     .call(d3.axisBottom(x).ticks(5));
 
 	 				 // text label for the x axis
 	 				 svg.append("text")             
@@ -100,7 +100,7 @@ angular.module('weathercast')
 
 	 				 // Add the y Axis
 	 				 svg.append("g")
-	 				     .call(d3.axisLeft(y));
+	 				     .call(d3.axisLeft(y).ticks(7));
 
 	 				 // text label for the y axis
 	 				 svg.append("text")
@@ -191,8 +191,8 @@ angular.module('weathercast')
 		       		    var valueline2 = d3.line()
 		       		        .x(function(d) { return x(new Date(d.time * 1000)); })
 		       		        .y(function(d) { return y(d.temperatureLow); });
-		       		    var xD = d3.extent(data, function(d) {return new Date(d.time * 1000)});
-
+		       		    var xD = [d3.min(data, function(d) {return new Date((d.time - 12*60*60)  * 1000)}),
+	       		        	d3.max(data, function(d) {return new Date(d.time * 1000)})];
 		       			x.domain(xD);
 		       			var yRange = [d3.min(data, function(d) {return d.temperatureLow}), 
 		       		    	d3.max(data, function(d) {return d.temperatureHigh})];
@@ -225,7 +225,7 @@ angular.module('weathercast')
 		 				 // Add the x Axis
 		 				 svg.append("g")
 		 				     .attr("transform", "translate(0," + height + ")")
-		 				     .call(d3.axisBottom(x));
+		 				     .call(d3.axisBottom(x).ticks(4));
 
 		 				 svg.selectAll("dot")
 		 				     .data(data)
