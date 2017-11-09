@@ -192,29 +192,36 @@ angular.module('weathercast')
 		       		        .x(function(d) { return x(new Date(d.time * 1000)); })
 		       		        .y(function(d) { return y(d.temperatureLow); });
 		       		    var xD = d3.extent(data, function(d) {return new Date(d.time * 1000)});
-		       		    var meanHigh = d3.mean(data, function(d) {return d.temperatureHigh});
-		       		    var meanLow = d3.mean(data, function(d) {return d.temperatureLow});
+
 		       			x.domain(xD);
 		       			var yRange = [d3.min(data, function(d) {return d.temperatureLow}), 
 		       		    	d3.max(data, function(d) {return d.temperatureHigh})];
+
 		       		    yRange[0] -= 5;
 		       		    yRange[1] += 5;
+
 		       		    y.domain(yRange);
+		       		    // if (data) {
+		       		    // 	var meanHigh = d3.mean(data, function(d) {return d.temperatureHigh});
+		       		    // 	var meanLow = d3.mean(data, function(d) {return d.temperatureLow});
 
-		       		    svg.append("line")          // attach a line
-		       		        .style("stroke", "ffc2c2")  // colour the line
-		       		        .attr("x1", 0)     // x position of the first end of the line
-		       		        .attr("y1", y(meanHigh))      // y position of the first end of the line
-		       		        .attr("x2", width)     // x position of the second end of the line
-		       		        .attr("y2", y(meanHigh));    // y position of the second end of the line
+		       		    // 	svg.append("line")          // attach a line
+		       		    // 	    .style("stroke", "ffc2c2")  // colour the line
+		       		    // 	    .attr("x1", 0)     // x position of the first end of the line
+		       		    // 	    .attr("y1", y(meanHigh))      // y position of the first end of the line
+		       		    // 	    .attr("x2", width)     // x position of the second end of the line
+		       		    // 	    .attr("y2", y(meanHigh));    // y position of the second end of the line
 
-		       		    svg.append("line")          // attach a line
-		       		        .style("stroke", "c2dcff")  // colour the line
-		       		        .attr("x1", 0)     // x position of the first end of the line
-		       		        .attr("y1", y(meanLow))      // y position of the first end of the line
-		       		        .attr("x2", width)     // x position of the second end of the line
-		       		        .attr("y2", y(meanLow));    // y position of the second end of the line
-		       		       
+		       		    // 	svg.append("line")          // attach a line
+		       		    // 	    .style("stroke", "c2dcff")  // colour the line
+		       		    // 	    .attr("x1", 0)     // x position of the first end of the line
+		       		    // 	    .attr("y1", y(meanLow))      // y position of the first end of the line
+		       		    // 	    .attr("x2", width)     // x position of the second end of the line
+		       		    // 	    .attr("y2", y(meanLow));    // y position of the second end of the line
+		       		    	   
+
+		       		    // }
+
 		 				 // Add the x Axis
 		 				 svg.append("g")
 		 				     .attr("transform", "translate(0," + height + ")")
