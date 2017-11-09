@@ -9,15 +9,14 @@ angular.module('weatherService', ['dark-sky'])
 
             var unixDest = currdata.time * 1000 + (-1*unixLocalOff + unixDestOff) * 60000;
             var date = new Date(unixDest);
-
-            var month = date.getUTCMonth()+1;
-            var day = date.getUTCDate();
+            var month = date.getMonth()+1;
+            var date = date.getDate();
 
             $('#currently-weather').empty();
             items.push(
                 '<tbody>' +
                   '<tr>' +
-                  "<td vertical-align: middle><h2>"+ month + "/" + day + "</h2></td>" + 
+                  "<td vertical-align: middle><h2>"+ month + "/" + date + "</h2></td>" + 
                      "<td style = 'padding:0;margin:0'><h2><i class='wi wi-forecast-io-" + currdata.icon + " wi-dark-sky-" + currdata.icon + "'></i> </h2><b>" +
                       Math.round(currdata.temperature) + '&deg ' + currdata.summary + '.<b></td>' +
                   '</tr>' +

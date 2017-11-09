@@ -39,7 +39,7 @@ function mainController ($scope, Hists, Weather) {
             zoom : 13
         });
         var geocoder = new google.maps.Geocoder();
-        
+
         disp(geocoder, map, $scope.loc);
         // when new search
         document.getElementById('createHist').addEventListener('click', function() {
@@ -49,6 +49,7 @@ function mainController ($scope, Hists, Weather) {
             //lat and lng is available in e object
             latLongText = e.latLng.lat() + "," + e.latLng.lng();
             disp(geocoder, map, latLongText);
+
 
         });
         // when existing search
@@ -75,7 +76,7 @@ function mainController ($scope, Hists, Weather) {
 
     };
 
-    
+
 
 
     // CREATE: when submitting the form, send the text to node API
