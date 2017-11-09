@@ -12,6 +12,7 @@ var database = require('./config/database');
 var port     = process.env.PORT || 8888;         // set the port
 var routes = require('./app/routes.js');
 var utils = require('./utils');
+
 var current_user = function ( req, res, next ){
   var user_id = req.cookies ?
       req.cookies.user_id : undefined;
@@ -29,6 +30,9 @@ mongoose.connect(database.url,
 	useMongoClient: true,
 }
 );     // connect to mongoDB database on modulus.io
+
+
+mongoose.Promise = require('bluebird');
 
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
 app.use(morgan('dev'));                                         // log every request to the console

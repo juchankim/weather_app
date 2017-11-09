@@ -34,7 +34,6 @@
     <script src="js/providers/angular-dark-sky.js"></script>
     <script src="js/services/hists.js"></script> <!-- load our hist service -->
     <script src="js/services/weather.js"></script>
-    <!-- // <script src="https://d3js.org/d3.v4.min.js"></script> -->
     <script src="js/core.js"></script> <!-- load our main application -->
 
 
@@ -90,6 +89,10 @@
                         <div class = "container-fluid">
                             <button type="button" class="btn btn-info btn-block" ng-click = "deleteEntireHistory()">Remove ALL </button>
                         </div>
+                        <hr>
+                        <div id="map" style="width:100%; height:327px"></div>
+
+
 
                         
                     </div>
@@ -114,15 +117,16 @@
                     <div class="panel-body container-fluid span12">
                         <!-- Creates Form (novalidate disables HTML validation, Angular will control) -->
                         <div class = "table-responsive table-borderless span12">
-                            <table id = "currently-weather" class = "table" style = "border-collapse: collapse;">
+                            <table id = "currently-weather" class = "table">
                              </table>
                         </div>
                         <div class = "table-responsive table-borderless span12" style = "overflow:scroll; width: 100%">
-                            <table id = "hourly-weather" class = "table"> </table>
+                            <table id = "hourly-weather" class = "table "> </table>
                         </div>
-                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; height:327px">
-                            <table id = "daily-weather" class = "table"> </table>
-                        </div>                 
+                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; width: 100%">
+                            <table id = "currently-weather-detailed" class = "table table-hover"> </table>
+                        </div>
+              
                     </div>
                 </div>
 
@@ -130,14 +134,19 @@
 
             <!-- Google Map -->
             <div class = "col-md-4 text-center container-fluid">
-               <div class="panel panel-info">
+               <div class="panel panel-default">
                    <!-- Panel Body -->
-                   <div class="panel-body">
-                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; height: 250px; width: 100%">
-                            <table id = "currently-weather-detailed" class = "table"> </table>
-                        </div>
+                   <div class="panel-heading container">
+                       <h5 class="text-center"> Week Forecast
+                       </h5>
                    </div>
-                   <div id="map" style="width:100%; height:327px"></div>
+                   <div class="panel-body">
+                        <div class = "table-responsive table-borderless span12"">
+                            <table id = "daily-weather" class = "table table-hover"> </table>
+                        </div>   
+                        
+                   </div>
+                   
                </div>
                 
             </div>

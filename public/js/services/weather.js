@@ -2,12 +2,22 @@
 angular.module('weatherService', ['dark-sky'])
 
     .factory('Weather', ['darkSky', 'moment', function(darkSky, moment) {
-        var showCurrentForecast = function(currdata) {
+        var showCurrentForecast = function(timezone, currdata) {
             var items = [];
+            var unixDestOff = moment.utc().clone().tz(timezone).utcOffset();
+            var unixLocalOff = moment().utcOffset();
+
+            var unixDest = currdata.time * 1000 + (-1*unixLocalOff + unixDestOff) * 60000;
+            var date = new Date(unixDest);
+
+            var month = date.getUTCMonth()+1;
+            var day = date.getUTCDate();
+
             $('#currently-weather').empty();
             items.push(
                 '<tbody>' +
                   '<tr>' +
+                  "<td vertical-align: middle><h2>"+ month + "/" + day + "</h2></td>" + 
                      "<td style = 'padding:0;margin:0'><h2><i class='wi wi-forecast-io-" + currdata.icon + " wi-dark-sky-" + currdata.icon + "'></i> </h2><b>" +
                       Math.round(currdata.temperature) + '&deg ' + currdata.summary + '.<b></td>' +
                   '</tr>' +
@@ -19,10 +29,14 @@ angular.module('weatherService', ['dark-sky'])
         var showCurrentForecastDetailed = function(units, json) {
             currdata = json.currently;
 
-            var interesting = ['summary','humidity', 'dewPoint', 'wind', 'visibility', 'pressure','uvIndex'];
+            var interesting = ['humidity', 'dewPoint', 'wind', 'visibility', 'pressure','uvIndex'];
             var items = [];
             $('#currently-weather-detailed').empty();
-            items.push('<tbody>');
+
+            items.push('<thead><tr><td colspan = "2"><h5>' +
+                json.hourly.summary +
+                '</h5></td></tr></thead><tbody>');
+            
             var degToCompass = function (num) {
                 val= Math.round((num/22.5)+.5);
                 arr=["N","NNE","NE","ENE","E","ESE", "SE", "SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -38,13 +52,6 @@ angular.module('weatherService', ['dark-sky'])
                         degToCompass(currdata["windBearing"]) + " " + 
                         currdata["windSpeed"] + " " +  units["windSpeed"] + '</h5></td>' + 
                         '</tr>');
-
-                } else if (data == "summary") {
-                    items.push(
-                        '<tr><td colspan = "2"><h6>' + 
-                        json.hourly.summary + 
-                        '</h6></td></tr>');
-
 
                 } else {
                     unit = " ";
@@ -117,7 +124,8 @@ angular.module('weatherService', ['dark-sky'])
             $('#hourly-weather').append(tableString);
 
         };
-        var showWeeklyForecast = function(timezone, weekdata) {
+        var showWeeklyForecast = function(timezone, daily) {
+            var weekdata = daily.data;
             var items = [];
             var weekday = new Array(7);
             weekday[0] =  "Sunday";
@@ -128,7 +136,9 @@ angular.module('weatherService', ['dark-sky'])
             weekday[5] = "Friday";
             weekday[6] = "Saturday";
             $('#daily-weather').empty();
-            items.push('<tbody>');
+            items.push('<thead><tr><td colspan= "4"><h5>' + 
+                daily.summary + '</h5></td></tr></thead>' + 
+                '<tbody>');
             $.each(weekdata, function(index, data) {
                 var unixDestOff = moment.utc().clone().tz(timezone).utcOffset();
                 var unixLocalOff = moment().utcOffset();
@@ -157,13 +167,12 @@ angular.module('weatherService', ['dark-sky'])
 
         return {
             getForecast : function(lat,long, unit) {
-
                 darkSky.getForecast(lat, long, unit)
                     .then(function(res) {
-                        showCurrentForecast(res.currently);
+                        showCurrentForecast(res.timezone,res.currently);
                         showCurrentForecastDetailed(darkSky.getUnits(unit), res);
                         showDailyForecast(res.timezone, res.hourly.data);
-                        showWeeklyForecast(res.timezone, res.daily.data);
+                        showWeeklyForecast(res.timezone, res.daily);
                     });
             }
     

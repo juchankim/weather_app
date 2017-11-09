@@ -4,13 +4,12 @@
   "description": "weather forecast web app",
   "main": "app.js",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
-    "connect": "^3.6.5",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
     "mongoose": "^4.13.0",
-    "morgan": "^1.9.0",
-    "serve-favicon": "^2.4.5"
+    "morgan": "^1.9.0"
   },
   "devDependencies": {
     "nodemon": "^1.12.1"

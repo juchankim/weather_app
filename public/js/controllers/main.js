@@ -39,10 +39,17 @@ function mainController ($scope, Hists, Weather) {
             zoom : 13
         });
         var geocoder = new google.maps.Geocoder();
+        
         disp(geocoder, map, $scope.loc);
         // when new search
         document.getElementById('createHist').addEventListener('click', function() {
             disp(geocoder, map, document.getElementById('new_address').value);
+        });
+        google.maps.event.addListener(map, "click", function (e) {
+            //lat and lng is available in e object
+            latLongText = e.latLng.lat() + "," + e.latLng.lng();
+            disp(geocoder, map, latLongText);
+
         });
         // when existing search
         $scope.newDisp = function(text) {
