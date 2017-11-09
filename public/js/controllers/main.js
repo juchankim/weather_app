@@ -1,14 +1,14 @@
 // js/controllers/main.js
     
-angular.module('histController', [])
+angular.module('histController', ['dark-sky'])
     .controller('mainController', mainController);
-mainController.$inject = ['$scope','Hists', 'Weather'];
+mainController.$inject = ['$scope','Hists', 'Weather', 'darkSky'];
 
-function mainController ($scope, Hists, Weather) {
+function mainController ($scope, Hists, Weather, darkSky) {
     $scope.formData = {};
     $scope.loc = "London, UK";
-
-    var latlong = {};
+    $scope.histData = [];
+    $scope.histDataWeekly = [];
     // GET
     // when landing on the page, get 5 recent hists and show them
     Hists.get()
@@ -18,14 +18,43 @@ function mainController ($scope, Hists, Weather) {
 
     // initialize map to London
     var disp = function(geocoder, map, address) {
-
         geocoder.geocode({'address': address}, function(res, stat) {
             if (stat === 'OK') {
                 latlong = res[0].geometry.location;
                 map.setCenter(latlong);
-                Weather.getForecast(latlong.lat(), latlong.lng(), $scope.u);
+                darkSky.getForecast(latlong.lat(), latlong.lng(), $scope.u)
+                    .then(function(result) {
+                        timezone = result.timezone;
+                        // past 24 hours
+                        histUnixDest = Weather.convertedUNIX(timezone, result.currently.time) - 1 * 24 * 60 * 60;
+                        options = {time: histUnixDest};
+                        darkSky.getForecast(latlong.lat(), latlong.lng(), $scope.u, options)
+                            .then(function(rest) { //data
+                                data = rest.hourly.data;
+                                data.forEach(function(value, i) {
+                                    value.time = Weather.convertedUNIX(rest.timezone, value.time);
+                                })
+                                $scope.histData = data;
+
+                        });
+                        $scope.histDataWeekly = [];
+                        for (var i = 1; i <= 7; i++) {
+                            histUnixDestDay = Weather.convertedUNIX(timezone, result.currently.time) - i * 24 * 60 * 60;
+                            options = {time: histUnixDestDay};
+                            darkSky.getForecast(latlong.lat(), latlong.lng(), $scope.u, options)
+                                .then(function(rest) { //data
+                                    data = rest.daily.data[0];
+                                    data.time = Weather.convertedUNIX(rest.timezone, data.time);
+                                    ($scope.histDataWeekly).push(data);
+                            });
+                        }
+                        
+                        Weather.showCurrentForecast(timezone, result.currently);
+                        Weather.showCurrentForecastDetailed(darkSky.getUnits($scope.u), result);
+                        Weather.showDailyForecast(timezone, result.hourly.data);
+                        Weather.showWeeklyForecast(timezone, result.daily);
+                    });
                 $scope.loc = res[0].formatted_address;
-    
             } else {
                 alert('Geocode was not successful for the following reason: ' + stat)
             }
@@ -65,7 +94,6 @@ function mainController ($scope, Hists, Weather) {
 
     $scope.updateUnit = function() {
         $scope.u = "";
-
         switch($scope.unit) {
             case 'us': $scope.u = 'us'; break;
             case 'si': $scope.u = 'si'; break;
@@ -75,9 +103,6 @@ function mainController ($scope, Hists, Weather) {
         $scope.newDisp($scope.loc);
 
     };
-
-
-
 
     // CREATE: when submitting the form, send the text to node API
     $scope.createHistory = function() {

@@ -132,7 +132,7 @@ function darkSkyProvider() {
      * ... {boolean} options.extend - pass true for extended forecast 
      * @returns {promise} - resolves with hourly weather data object
      */
-    function getForecastHourly(latitude, longitude, options) {
+    function getForecastHourly(latitude, longitude, unit, options) {
       return api(latitude, longitude, options).hourly();
     }
 
@@ -221,6 +221,7 @@ function darkSkyProvider() {
       if (options && options.time) {
         time = options.time;
       }
+
       return {
         myForecast: function(unit) {
           var query = config.baseExclude + ['alerts', 'flags', 'minutely'].join(",") + optionsString(options);
@@ -313,7 +314,7 @@ function darkSkyProvider() {
       if (!latitude || !longitude) {
         console.warn("no latitude or longitude sent to weather api");
       }
-      var time = time ? ', ' + time : '',
+      var time = time ? ',' + time : '',
         url = [config.baseUri, apiKey, '/', latitude, ',', longitude, time, '?units=', unit, '&lang=', language, query].join('');
       return $http
         .jsonp($sce.trustAsResourceUrl(url))
@@ -343,7 +344,7 @@ function darkSkyProvider() {
       if (!latitude || !longitude) {
         console.warn("no latitude or longitude sent to weather api");
       }
-      var time = time ? ', ' + time : '',
+      var time = time ? ',' + time : '',
         url = [config.baseUri, apiKey, '/', latitude, ',', longitude, time, '?units=', units, '&lang=', language, query].join('');
       return $http
         .jsonp($sce.trustAsResourceUrl(url))

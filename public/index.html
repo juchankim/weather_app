@@ -29,11 +29,13 @@
 
     <!-- load angular-moment -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular-moment/0.9.0/angular-moment.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
     
     <script src="js/controllers/main.js"></script> <!-- load up our controller -->
     <script src="js/providers/angular-dark-sky.js"></script>
     <script src="js/services/hists.js"></script> <!-- load our hist service -->
     <script src="js/services/weather.js"></script>
+    <!-- // <script src="js/services/d3.js"></script> -->
     <script src="js/core.js"></script> <!-- load our main application -->
 
 
@@ -136,14 +138,22 @@
             <div class = "col-md-4 text-center container-fluid">
                <div class="panel panel-default">
                    <!-- Panel Body -->
-                   <div class="panel-heading container">
-                       <h5 class="text-center"> Week Forecast
-                       </h5>
-                   </div>
                    <div class="panel-body">
-                        <div class = "table-responsive table-borderless span12"">
+                        <div class = "table-responsive table-borderless span12" style = "overflow:scroll; width: 100%; height: 327px">
                             <table id = "daily-weather" class = "table table-hover"> </table>
-                        </div>   
+                        </div> 
+                        <br>  
+                        <!-- <line-chart chart-data="histData"></line-chart> -->
+                        <div class 'col-md-12' id = "line-chart-view">
+                        <link-chart chart-data="histData"></link-chart>
+                        <br>
+                        </div>
+                        <div class 'col-md-12' id = "line-chart-weekly-view">
+                        <link-chart-weekly chart-data="histDataWeekly"></link-chart-weekly>
+                        
+                        </div>
+
+
                         
                    </div>
                    
