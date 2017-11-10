@@ -16,7 +16,7 @@ function mainController ($scope, Hists, Weather, darkSky) {
             $scope.hists = data.data;
         }); 
 
-    // initialize map to London
+    // initialize map & all the displays that depend on lat,long
     var disp = function(geocoder, map, address) {
         geocoder.geocode({'address': address}, function(res, stat) {
             if (stat === 'OK') {
@@ -39,7 +39,7 @@ function mainController ($scope, Hists, Weather, darkSky) {
                         });
                         $scope.histDataWeekly = [];
                         for (var i = 1; i <= 7; i++) {
-                            histUnixDestDay = Weather.convertedUNIX(timezone, result.currently.time) - i * 24 * 60 * 60;
+                            histUnixDestDay = Weather.convertedUNIX(timezone, result.daily.data[0].time) - i * 24 * 60 * 60;
                             options = {time: histUnixDestDay};
                             darkSky.getForecast(latlong.lat(), latlong.lng(), $scope.u, options)
                                 .then(function(rest) { //data
