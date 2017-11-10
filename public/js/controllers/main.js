@@ -26,7 +26,7 @@ function mainController ($scope, Hists, Weather, darkSky) {
                     .then(function(result) {
                         timezone = result.timezone;
                         // past 24 hours
-                        histUnixDest = Weather.convertedUNIX(timezone, result.currently.time) - 1 * 24 * 60 * 60;
+                        histUnixDest = Weather.convertedUNIX(timezone, result.daily.data[0].time) - 1 * 24 * 60 * 60;
                         options = {time: histUnixDest};
                         darkSky.getForecast(latlong.lat(), latlong.lng(), $scope.u, options)
                             .then(function(rest) { //data

@@ -21,6 +21,9 @@ angular.module('weatherService', [])
             var unixDest = time + (-1*unixLocalOff + unixDestOff) * 60;
             return unixDest;
         }
+        var convertNumToDay = function(n) {
+            return weekday[n];
+        }
 
         function newDate(timezone, time) {
             return new Date(convertedUNIX(timezone, time) * 1000);
@@ -174,6 +177,6 @@ angular.module('weatherService', [])
             showDailyForecast : showDailyForecast,
             showWeeklyForecast : showWeeklyForecast,
             showCurrentForecastDetailed: showCurrentForecastDetailed,
-            convertedUNIX: convertedUNIX
+            convertedUNIX: convertedUNIX,
         };
     }]);
