@@ -16,7 +16,7 @@ function mainController ($scope, Hists, Weather, darkSky) {
             $scope.hists = data.data;
         }); 
 
-    // initialize map & all the displays that depend on lat,long
+    // map & all the displays that depend on lat,long
     var disp = function(geocoder, map, address) {
         geocoder.geocode({'address': address}, function(res, stat) {
             if (stat === 'OK') {
@@ -60,7 +60,7 @@ function mainController ($scope, Hists, Weather, darkSky) {
             }
         })
     }
-
+    // every site refresh this is called where the value is initalized with London lat/long
     $scope.initialize = function() {
         var pos = {lat: 51.51, lng: -0.13};
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -74,9 +74,12 @@ function mainController ($scope, Hists, Weather, darkSky) {
         document.getElementById('createHist').addEventListener('click', function() {
             disp(geocoder, map, document.getElementById('new_address').value);
         });
-        google.maps.event.addListener(map, "click", function (e) {
+        // if a center location within the google maps is changed, refresh all the displays 
+        google.maps.event.addListener(map, "dragend", function () {
             //lat and lng is available in e object
-            latLongText = e.latLng.lat() + "," + e.latLng.lng();
+            lat = map.getCenter().lat();
+            lng = map.getCenter().lng();
+            latLongText = lat + "," + lng;
             disp(geocoder, map, latLongText);
 
 

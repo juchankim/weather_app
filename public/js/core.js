@@ -107,7 +107,14 @@ angular.module('weathercast')
 						.attr("dy", "1em")
 						.attr("text-anchor", "end")
 						.text("Temperature"); 
-					yesterday = new Date(data[0].time * 1000);
+					var yesterday;
+					if (data.length > 1){
+						yesterday = new Date(data[0].time * 1000);
+					} else {
+						yesterday = new Date()
+						yesterday.setDate(yesterday.getDate() - 1);
+					}
+					
 
 					
 					svg.append("text")

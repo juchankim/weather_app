@@ -39,8 +39,9 @@ angular.module('weatherService', [])
         function iconHTML(icon) {
             return "<i class='wi wi-forecast-io-" + icon + " wi-dark-sky-" + icon + "'></i>"
         }
+        
 
-
+        
         var showCurrentForecast = function(timezone, currdata) {
             var items = [];
             var date = newDate(timezone, currdata.time);
