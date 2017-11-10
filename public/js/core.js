@@ -3,7 +3,7 @@ angular.module('weathercast', ['histController', 'histService', 'weatherService'
 
 angular.module('weathercast')
 	.config(['darkSkyProvider', function(darkSkyProvider) {
-	darkSkyProvider.setApiKey('3e8acf4ec48ec55a15d359f5ad048dc0');
+	darkSkyProvider.setApiKey('eec5124aff132230370a2a1eeb4b3922');
 }])
 	.directive("linkChart", function(moment, $window, $timeout) {
 		//For the temperature yesterday graph
