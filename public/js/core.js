@@ -2,9 +2,6 @@
 angular.module('weathercast', ['histController', 'histService', 'weatherService','angularMoment']);
 
 angular.module('weathercast')
-	.config(['darkSkyProvider', function(darkSkyProvider) {
-	darkSkyProvider.setApiKey('eec5124aff132230370a2a1eeb4b3922');
-}])
 	.directive("linkChart", function(moment, $window, $timeout) {
 		//For the temperature yesterday graph
 	    var directiveDefinitionObject = {

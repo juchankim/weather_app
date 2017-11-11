@@ -2,13 +2,56 @@
 
 // load the history model
 var Hist = require('./models/history');
-
+// var google = require('../config/google.js');
+var req = require('request');
 var cookieParser = require("cookie-parser"); 
 var utils    = require( '../utils' );
+var darkskyAPI = require('../config/darksky.js');
+var DarkSky = require('./darksky.js');
+
+
 
 // expose the routes to our app with module.exports
-var callback = 
+
 module.exports = function(app) {
+    // get forecast / history
+    app.get('/weather/:lat/:long/:unit', function(req,res) {
+        var lat = req.params.lat;
+        var lng = req.params.long;
+        var unit = req.params.unit;
+        new DarkSky(darkskyAPI.api)
+            .options({
+                latitude : lat,
+                longitude : lng,
+                units : unit,
+                exclude: ['minutely', 'flags']
+            }).get()
+            .then(function(ret) {
+                res.json(ret);
+            }).catch(function(err){
+                res.send(err);
+            });
+    })
+
+    app.get('/weather/:lat/:long/:unit/:time', function(req,res) {
+        var lat = req.params.lat;
+        var lng = req.params.long;
+        var unit = req.params.unit;
+        var time = req.params.time;
+        new DarkSky(darkskyAPI.api)
+            .options({
+                latitude : lat,
+                longitude : lng,
+                units : unit,
+                time : time,
+                exclude: ['minutely', 'flags', 'currently']
+            }).get()
+            .then(function(ret) {
+                res.json(ret);
+            }).catch(function(err){
+                res.send(err);
+            });
+    })
 
     // api ---------------------------------------------------------------------
     app.get('/api/hist', function(req, res) {

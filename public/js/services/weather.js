@@ -1,6 +1,6 @@
 // js/services/hists.js
 angular.module('weatherService', [])
-    .factory('Weather', ['moment',  function(moment) {
+    .factory('Weather', ['$http','moment',  function($http, moment) {
         var weekday = new Array(7);
         weekday[0] =  "Sunday";
         weekday[1] = "Monday";
@@ -9,6 +9,91 @@ angular.module('weatherService', [])
         weekday[4] = "Thursday";
         weekday[5] = "Friday";
         weekday[6] = "Saturday";
+
+        /**
+         * Get units object showing units returned based on configured language/units
+         * @returns {object} units
+         */
+        var getUnits = function(unitId) {
+          var unitsObject;
+          // get units object by id
+          switch (unitId) {
+            case 'ca':
+              unitsObject = getCaUnits();
+              break;
+            case 'uk2':
+              unitsObject = getUk2Units();
+              break;
+            case 'us':
+              unitsObject = getUsUnits();
+              break;
+            case 'si':
+              unitsObject = getSiUnits();
+              break;
+          }
+          
+          return unitsObject;
+        }
+
+        function getUsUnits() {
+          return {
+            nearestStormDistance: 'mi',
+            precipIntensity: 'in/h',
+            precipIntensityMax: 'in/h',
+            precipAccumulation: 'in',
+            temperature: 'f',
+            temperatureMin: 'f',
+            temperatureMax: 'f',
+            apparentTemperature: 'f',
+            dewPoint: 'f',
+            windSpeed: 'mph',
+            pressure: 'mbar',
+            visibility: 'mi'
+          };
+        }
+
+        /**
+         * Return the si response units
+         * @returns {object} units
+         */
+        function getSiUnits() {
+          return {
+            nearestStormDistance: 'km',
+            precipIntensity: 'mm/h',
+            precipIntensityMax: 'mm/h',
+            precipAccumulation: 'cm',
+            temperature: 'c',
+            temperatureMin: 'c',
+            temperatureMax: 'c',
+            apparentTemperature: 'c',
+            dewPoint: 'c',
+            windSpeed: 'mps',
+            pressure: 'hPa',
+            visibility: 'km'
+          };
+        }
+
+        /** 
+         * Return ca response units
+         * @returns {object} units
+         */
+        function getCaUnits() {
+          var unitsObject = getUsUnits();
+          unitsObject.windSpeed = 'km/h';
+          return unitsObject;
+        }
+
+        /**
+         * Return uk2 response units
+         * @returns {object} units
+         */
+        function getUk2Units() {
+          var unitsObject = getSiUnits();
+          unitsObject.nearestStormDistance = unitsObject.visibility = 'mi';
+          unitsObject.windSpeed = 'mph';
+          return unitsObject;
+        }
+
 
         var interesting = ['humidity', 'dewPoint', 'wind', 'visibility', 'pressure','uvIndex'];
 
@@ -60,8 +145,9 @@ angular.module('weatherService', [])
             $('#currently-weather').append(tableString);
         };
 
-        var showCurrentForecastDetailed = function(units, json) {
+        var showCurrentForecastDetailed = function(unit, json) {
             currdata = json.currently;
+            units = getUnits(unit);
             var items = [];
             $('#currently-weather-detailed').empty();
 
@@ -174,6 +260,14 @@ angular.module('weatherService', [])
   
 
         return {
+            get : function(opts) {
+                // console.log(opts);
+                return $http.get('/weather/' + opts.latitude + "/" + opts.longitude + "/" + opts.units);
+            },
+            getHistory : function(opts) {
+                // console.log(opts);
+                return $http.get('/weather/' + opts.latitude + "/" + opts.longitude + "/" + opts.units + "/" + opts.time);
+            },
             showCurrentForecast : showCurrentForecast,
             showDailyForecast : showDailyForecast,
             showWeeklyForecast : showWeeklyForecast,
